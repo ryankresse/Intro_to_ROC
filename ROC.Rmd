@@ -1,0 +1,44 @@
+---
+title: "Introduction to the ROC"
+---
+###### Code to accompany a [blog post](http://ryankresse.com/an-introduction-to-the-roc/) introducing the ROC.
+
+
+##### Load packages
+
+```{r load-packages, message=FALSE}
+library(dplyr)
+library(ggplot2)
+library("pROC")
+```
+
+##### Read in the simulated date set
+
+```{r load-data}
+df <- read.csv("http://www.ats.ucla.edu/stat/data/binary.csv")
+```
+
+##### Convert the rank column to a factor and split the data into train and test sets
+
+```{r split}
+df$rank <- factor(df$rank)
+train <- df[0:300,]
+test <- df[300:400,]
+
+
+```
+
+##### Fit a logistic regression model
+
+```{r fit-model}
+lrModel <-glm(admit ~ gre + gpa + rank, data=train, family='binomial')
+summary(lrModel)
+```
+
+##### Make predictions on the test data, draw the ROC curve and compute the AUC
+
+```{r create-curve}
+predictions = predict(lrModel, newdata=test, type="response")
+roc1 = roc(test$admit, predictions, plot=TRUE)
+auc(roc1)
+```
